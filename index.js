@@ -1,6 +1,10 @@
 const lodash = require('lodash');
 
 class Metric {
+  static get INF() {
+    return '+Inf';
+  }
+
   static checkValue(value) {
     if (typeof value !== 'number') {
       throw new TypeError(`Value is not a valid number: ${value}`);
@@ -9,9 +13,8 @@ class Metric {
   }
 
   constructor({ type, name, help, labels = [] }) {
-    this.table = {}; // {labelKey: value}
     this.name = name;
-    this.HEAD = `# HELP ${name} ${help}\n# TYPE ${name} ${type}`;
+    this.HEAD = `# HELP ${name} ${help}\n# TYPE ${name} ${type}\n`;
 
     this.labelSet = new Set(
       labels.map((n) => {
@@ -33,21 +36,15 @@ class Metric {
     return Object.keys(label).sort().map(k => `${k}="${label[k]}"`).join(',');
   }
 
-  clear() {
-    this.table = {};
-  }
-
   toString({ head = true } = {}) {
-    const array = head ? [this.HEAD] : [];
-    return array.concat(
-      lodash.map(this.table, (v, k) => (k ? `${this.name}{${k}} ${v}` : `${this.name} ${v}`)),
-    ).join('\n');
+    return head ? this.HEAD : '';
   }
 }
 
-class Counter extends Metric {
-  constructor(options) {
-    super({ ...options, type: 'counter' });
+class Gauge extends Metric {
+  constructor({ name, help, labels = [] }) {
+    super({ type: 'gauge', name, help, labels });
+    this.table = {}; // {labelKey: value}
   }
 
   set(value, label) {
@@ -56,21 +53,39 @@ class Counter extends Metric {
     this.table[key] = value;
   }
 
-  inc(label) {
+  get(label = {}) {
     const key = this.labelToKey(label);
-    this.table[key] = (this.table[key] || 0.0) + 1.0;
+    return this.table[key];
+  }
+
+  clear() {
+    this.table = {};
+  }
+
+  toString({ head = true } = {}) {
+    return [super.toString({ head })].concat(
+      lodash.map(this.table, (v, k) => (k ? `${this.name}{${k}} ${v}\n` : `${this.name} ${v}\n`)),
+    ).join('');
   }
 }
 
-class Gauge extends Counter {
+class Counter extends Gauge {
   constructor(options) {
-    super({ ...options, type: 'gauge' });
+    super({ ...options, type: 'counter' });
   }
 
   add(value, label) {
     value = this.constructor.checkValue(value);
     const key = this.labelToKey(label);
     this.table[key] = (this.table[key] || 0.0) + value;
+  }
+
+  inc(label) {
+    return this.add(1, label);
+  }
+
+  dec(label) {
+    return this.add(-1, label);
   }
 }
 
@@ -83,11 +98,11 @@ class Histogram extends Metric {
   } = {}) {
     super({ ...options, name, labels, type: 'histogram' });
     this.bucketValues = buckets;
-    this.bucket = new Gauge({
+    this.bucket = new Counter({
       name: `${name}_bucket`,
       labels: [...labels, 'le'],
     });
-    this.sum = new Gauge({ name: `${name}_sum`, labels });
+    this.sum = new Counter({ name: `${name}_sum`, labels });
     this.count = new Counter({ name: `${name}_count`, labels });
   }
 
@@ -95,24 +110,20 @@ class Histogram extends Metric {
     value = this.constructor.checkValue(value);
 
     for (const bound of this.bucketValues) {
-      if (value < bound) {
-        this.bucket.add(1, { ...label, le: bound });
-      } else {
-        this.bucket.add(0, { ...label, le: bound });
-      }
+      this.bucket.add(Number(value < bound), { ...label, le: bound });
     }
-    this.bucket.add(1, { ...label, le: '+Inf' });
+    this.bucket.inc({ ...label, le: Metric.INF });
     this.sum.add(value, label);
     this.count.inc(label);
   }
 
   toString({ head = true } = {}) {
-    const array = head ? [this.HEAD] : [];
-    return array.concat(
+    return [
+      super.toString({ head }),
       this.bucket.toString({ head: false }),
       this.sum.toString({ head: false }),
       this.count.toString({ head: false }),
-    ).join('\n');
+    ].join('');
   }
 }
 

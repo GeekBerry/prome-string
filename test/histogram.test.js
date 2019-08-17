@@ -8,33 +8,37 @@ const histogram = new Histogram({
 });
 
 test('init', () => {
-  expect(histogram.table[histogram.labelToKey()]).toBe(undefined);
-  expect(histogram.table[histogram.labelToKey({ labelA: 'A' })]).toBe(undefined);
-
+  expect(histogram.bucket.get({ le: 1 })).toBe(undefined);
+  expect(histogram.bucket.get({ le: 10 })).toBe(undefined);
+  expect(histogram.bucket.get({ le: 100 })).toBe(undefined);
+  expect(histogram.bucket.get({ le: 1000 })).toBe(undefined);
+  expect(histogram.bucket.get({ le: Histogram.INF })).toBe(undefined);
+  expect(histogram.count.get()).toBe(undefined);
+  expect(histogram.sum.get()).toBe(undefined);
 });
 
 test('observe(5)', () => {
   histogram.observe(5);
 
-  expect(histogram.bucket.table[histogram.bucket.labelToKey({ le: 1 })]).toBe(0);
-  expect(histogram.bucket.table[histogram.bucket.labelToKey({ le: 10 })]).toBe(1);
-  expect(histogram.bucket.table[histogram.bucket.labelToKey({ le: 100 })]).toBe(1);
-  expect(histogram.bucket.table[histogram.bucket.labelToKey({ le: 1000 })]).toBe(1);
-  expect(histogram.bucket.table[histogram.bucket.labelToKey({ le: '+Inf' })]).toBe(1);
-  expect(histogram.count.table[histogram.count.labelToKey()]).toBe(1);
-  expect(histogram.sum.table[histogram.sum.labelToKey()]).toBe(5);
+  expect(histogram.bucket.get({ le: 1 })).toBe(0);
+  expect(histogram.bucket.get({ le: 10 })).toBe(1);
+  expect(histogram.bucket.get({ le: 100 })).toBe(1);
+  expect(histogram.bucket.get({ le: 1000 })).toBe(1);
+  expect(histogram.bucket.get({ le: Histogram.INF })).toBe(1);
+  expect(histogram.count.get()).toBe(1);
+  expect(histogram.sum.get()).toBe(5);
 });
 
 test('observe(500)', () => {
   histogram.observe(500);
 
-  expect(histogram.bucket.table[histogram.bucket.labelToKey({ le: 1 })]).toBe(0);
-  expect(histogram.bucket.table[histogram.bucket.labelToKey({ le: 10 })]).toBe(1);
-  expect(histogram.bucket.table[histogram.bucket.labelToKey({ le: 100 })]).toBe(1);
-  expect(histogram.bucket.table[histogram.bucket.labelToKey({ le: 1000 })]).toBe(2);
-  expect(histogram.bucket.table[histogram.bucket.labelToKey({ le: '+Inf' })]).toBe(2);
-  expect(histogram.count.table[histogram.count.labelToKey()]).toBe(2);
-  expect(histogram.sum.table[histogram.sum.labelToKey()]).toBe(505);
+  expect(histogram.bucket.get({ le: 1 })).toBe(0);
+  expect(histogram.bucket.get({ le: 10 })).toBe(1);
+  expect(histogram.bucket.get({ le: 100 })).toBe(1);
+  expect(histogram.bucket.get({ le: 1000 })).toBe(2);
+  expect(histogram.bucket.get({ le: Histogram.INF })).toBe(2);
+  expect(histogram.count.get()).toBe(2);
+  expect(histogram.sum.get()).toBe(505);
 });
 
 afterEach(() => {

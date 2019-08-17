@@ -7,17 +7,24 @@ const counter = new Counter({
 });
 
 test('init', () => {
-  expect(counter.table[counter.labelToKey()]).toBe(undefined);
-  expect(counter.table[counter.labelToKey({ labelA: 'A' })]).toBe(undefined);
-
+  expect(counter.get()).toBe(undefined);
+  expect(counter.get({ labelA: 'A' })).toBe(undefined);
 });
 
 test('inc', () => {
   counter.inc();
-  counter.inc({ labelA: 'A' });
+  counter.dec({ labelA: 'A' });
 
-  expect(counter.table[counter.labelToKey()]).toBe(1);
-  expect(counter.table[counter.labelToKey({ labelA: 'A' })]).toBe(1);
+  expect(counter.get()).toBe(1);
+  expect(counter.get({ labelA: 'A' })).toBe(-1);
+});
+
+test('add', () => {
+  counter.add(1);
+  counter.add(-1, { labelA: 'A' });
+
+  expect(counter.get()).toBe(2);
+  expect(counter.get({ labelA: 'A' })).toBe(-2);
 });
 
 afterEach(() => {

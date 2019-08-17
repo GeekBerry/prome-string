@@ -9,13 +9,41 @@ prometheus string generator
 
 ```
 Metric
-Counter
 Gauge
+Counter
 Histogram
 # TODO Summary 
 ```
 
 ## Usage
+
+### Gauge
+
+* code
+
+```js
+const { Gauge } = require('prome-string');
+
+const gauge = new Gauge({
+  name: 'Gauge Name',
+  help: 'Gauge Help',
+  labels: ['labelA', 'labelB'],
+});
+
+gauge.set(2);
+gauge.set(4, { labelA: 'A' });
+
+console.log(`${gauge}`)
+```
+
+* result
+
+```text
+# HELP Gauge Name Gauge Help
+# TYPE Gauge Name gauge
+Gauge Name 2
+Gauge Name{labelA="A"} 4
+```
 
 ### Counter
 
@@ -31,7 +59,7 @@ const counter = new Counter({
 });
 
 counter.inc();
-counter.inc({ labelA: 'A' });
+counter.dec({ labelA: 'A' });
   
 console.log(`${counter}`);
 ```
@@ -40,37 +68,9 @@ console.log(`${counter}`);
 
 ```text
 # HELP Counter Name Counter Help
-# TYPE Counter Name counter
+# TYPE Counter Name gauge
 Counter Name 1
-Counter Name{labelA="A"} 1
-```
-
-### Gauge
-
-* code
-
-```js
-const { Gauge } = require('prome-string');
-
-const gauge = new Gauge({
-  name: 'Gauge Name',
-  help: 'Gauge Help',
-  labels: ['labelA', 'labelB'],
-});
-
-gauge.add(2);
-gauge.add(4, { labelA: 'A' });
-gauge.set(100, { labelB: 'B' });
-```
-
-* result
-
-```text
-# HELP Gauge Name Gauge Help
-# TYPE Gauge Name counter
-Gauge Name 2
-Gauge Name{labelA="A"} 4
-Gauge Name{labelB="B"} 100
+Counter Name{labelA="A"} -1
 ```
 
 ### Histogram
@@ -90,6 +90,8 @@ const histogram = new Histogram({
 histogram.observe(5);
 histogram.observe(500);
 histogram.observe(20, { labelA: 'A' });
+
+console.log(`${histogram}`);
 ```
 
 * result

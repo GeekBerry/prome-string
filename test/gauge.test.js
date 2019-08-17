@@ -11,7 +11,7 @@ test('init', () => {
   expect(gauge.get({ labelA: 'A' })).toBe(undefined);
 });
 
-test('add', () => {
+test('set', () => {
   gauge.set(2);
   gauge.set(4, { labelA: 'A' });
 

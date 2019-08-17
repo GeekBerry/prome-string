@@ -26,7 +26,7 @@ class Metric {
     );
   }
 
-  labelToKey(label = {}) {
+  _labelToKey(label = {}) {
     Object.keys(label).forEach((n) => {
       if (!this.labelSet.has(n)) {
         throw new Error(`label name "${n}" not in labels ${this.labelSet}`);
@@ -49,12 +49,12 @@ class Gauge extends Metric {
 
   set(value, label) {
     value = this.constructor.checkValue(value);
-    const key = this.labelToKey(label);
+    const key = this._labelToKey(label);
     this.table[key] = value;
   }
 
   get(label = {}) {
-    const key = this.labelToKey(label);
+    const key = this._labelToKey(label);
     return this.table[key];
   }
 
@@ -76,7 +76,7 @@ class Counter extends Gauge {
 
   add(value, label) {
     value = this.constructor.checkValue(value);
-    const key = this.labelToKey(label);
+    const key = this._labelToKey(label);
     this.table[key] = (this.table[key] || 0.0) + value;
   }
 
@@ -115,6 +115,12 @@ class Histogram extends Metric {
     this.bucket.inc({ ...label, le: Metric.INF });
     this.sum.add(value, label);
     this.count.inc(label);
+  }
+
+  clear() {
+    this.bucket.clear();
+    this.sum.clear();
+    this.count.clear();
   }
 
   toString({ head = true } = {}) {

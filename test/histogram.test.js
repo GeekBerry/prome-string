@@ -41,6 +41,18 @@ test('observe(500)', () => {
   expect(histogram.sum.get()).toBe(505);
 });
 
+test('clear', () => {
+  histogram.clear();
+
+  expect(histogram.bucket.get({ le: 1 })).toBe(undefined);
+  expect(histogram.bucket.get({ le: 10 })).toBe(undefined);
+  expect(histogram.bucket.get({ le: 100 })).toBe(undefined);
+  expect(histogram.bucket.get({ le: 1000 })).toBe(undefined);
+  expect(histogram.bucket.get({ le: Histogram.INF })).toBe(undefined);
+  expect(histogram.count.get()).toBe(undefined);
+  expect(histogram.sum.get()).toBe(undefined);
+});
+
 afterEach(() => {
   console.log(`${histogram}`);
 });

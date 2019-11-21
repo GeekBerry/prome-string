@@ -1,4 +1,4 @@
-const { Histogram } = require('../index');
+const { Histogram } = require('../src');
 
 const histogram = new Histogram({
   name: 'Histogram Name',

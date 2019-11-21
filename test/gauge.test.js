@@ -1,4 +1,4 @@
-const { Gauge } = require('../index');
+const { Gauge } = require('../src');
 
 const gauge = new Gauge({
   name: 'Gauge Name',

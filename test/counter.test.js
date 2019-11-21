@@ -1,4 +1,4 @@
-const { Counter } = require('../index');
+const { Counter } = require('../src');
 
 const counter = new Counter({
   name: 'Counter Name',

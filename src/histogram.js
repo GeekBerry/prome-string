@@ -18,7 +18,7 @@ class Histogram extends Metric {
     this.count = new Counter({ name: `${name}_count`, labels });
   }
 
-  observe(value, label = {}) {
+  set(value, label = {}) {
     value = this.constructor.checkValue(value);
 
     for (const bound of this._buckets) {

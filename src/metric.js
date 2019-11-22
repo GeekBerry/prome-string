@@ -3,25 +3,31 @@ class Metric {
     return '+Inf';
   }
 
+  static checkName(name) {
+    if (!/^[a-zA-Z_:][a-zA-Z0-9_:]*$/.test(name)) {
+      throw new Error('Name must match `^[a-zA-Z_:][a-zA-Z0-9_:]*$`');
+    }
+    return name;
+  }
+
+  static checkLabel(label) {
+    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(label)) {
+      throw new Error('Label must match `^[a-zA-Z_][a-zA-Z0-9_]*$`');
+    }
+    return label;
+  }
+
   static checkValue(value) {
     if (typeof value !== 'number') {
-      throw new TypeError(`Value is not a valid number: ${value}`);
+      throw new Error(`Value is not a valid number: ${value}`);
     }
     return value;
   }
 
   constructor({ type, name, help = 'help', labels = [] }) {
-    this.name = name;
+    this.name = this.constructor.checkName(name);
     this.HEAD = `# HELP ${name} ${help}\n# TYPE ${name} ${type}\n`;
-
-    this.labelSet = new Set(
-      labels.map((n) => {
-        if (typeof n !== 'string') {
-          throw new Error(`label name "${n}" not a string`);
-        }
-        return n;
-      }),
-    );
+    this.labelSet = new Set(labels.map(this.constructor.checkLabel));
   }
 
   _labelToKey(label = {}) {

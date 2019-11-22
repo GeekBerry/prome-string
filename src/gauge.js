@@ -1,4 +1,3 @@
-const lodash = require('lodash');
 const Metric = require('./metric');
 
 class Gauge extends Metric {

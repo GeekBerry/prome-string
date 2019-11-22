@@ -61,7 +61,7 @@ class Summary extends Metric {
     this.table = {}; // {labelKey: Queue}
   }
 
-  observe(value, label = {}) {
+  set(value, label = {}) {
     value = this.constructor.checkValue(value);
     const key = this._labelToKey(label);
 
@@ -74,7 +74,7 @@ class Summary extends Metric {
     this.count.inc(label);
   }
 
-  percentile(percentile, label = {}, timeout = Infinity) {
+  percentile(percentile, label = {}, timeout = this._timeout) {
     const key = this._labelToKey(label);
     const queue = this.table[key];
     if (queue) {

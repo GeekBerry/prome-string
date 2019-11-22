@@ -17,8 +17,8 @@ test('init', () => {
   expect(histogram.sum.get()).toBe(undefined);
 });
 
-test('observe(5)', () => {
-  histogram.observe(5);
+test('set(5)', () => {
+  histogram.set(5);
 
   expect(histogram.bucket.get({ le: 1 })).toBe(0);
   expect(histogram.bucket.get({ le: 10 })).toBe(1);
@@ -29,8 +29,8 @@ test('observe(5)', () => {
   expect(histogram.sum.get()).toBe(5);
 });
 
-test('observe(500)', () => {
-  histogram.observe(500);
+test('set(500)', () => {
+  histogram.set(500);
 
   expect(histogram.bucket.get({ le: 1 })).toBe(0);
   expect(histogram.bucket.get({ le: 10 })).toBe(1);

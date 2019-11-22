@@ -15,25 +15,25 @@ test('init', () => {
   expect(summary.sum.get()).toEqual(undefined);
 });
 
-test('observe()', () => {
-  summary.observe(1); // pop
-  summary.observe(2); // pop
-  summary.observe(3); // pop
-  summary.observe(4); // pop
-  summary.observe(5);
-  summary.observe(6);
-  summary.observe(7);
+test('set()', () => {
+  summary.set(1); // pop
+  summary.set(2); // pop
+  summary.set(3); // pop
+  summary.set(4); // pop
+  summary.set(5);
+  summary.set(6);
+  summary.set(7);
 
   expect(summary.percentile(0.5)).toBe(6);
   expect(summary.count.get()).toEqual(7);
   expect(summary.sum.get()).toEqual(28);
 });
 
-test('observe({})', () => {
-  summary.observe(10, { label: 'post' });
-  summary.observe(20, { label: 'post' });
-  summary.observe(30, { label: 'post' });
-  summary.observe(40, { label: 'post' });
+test('set({})', () => {
+  summary.set(10, { label: 'post' });
+  summary.set(20, { label: 'post' });
+  summary.set(30, { label: 'post' });
+  summary.set(40, { label: 'post' });
 
   expect(summary.percentile(0.5, { label: 'post' })).toBe(30);
   expect(summary.count.get({ label: 'post' })).toEqual(4);
@@ -47,7 +47,6 @@ test('clear', () => {
   expect(summary.count.get()).toEqual(undefined);
   expect(summary.sum.get()).toEqual(undefined);
 });
-
 
 afterEach(() => {
   console.log(`${summary}`);

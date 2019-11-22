@@ -37,6 +37,15 @@ counter.dec({ labelA: 'A' });
 console.log(`${counter}`);
 ```
 
+* result
+
+```text
+# HELP counter_name counter_help
+# TYPE counter_name gauge
+counter_name 1
+counter_name{labelA="A"} -1
+```
+
 ### Gauge
 
 * code
@@ -63,15 +72,6 @@ console.log(`${gauge}`)
 # TYPE gauge_name gauge
 gauge_name 2
 gauge_name{labelA="A"} 4
-```
-
-* result
-
-```text
-# HELP counter_name counter_help
-# TYPE counter_name gauge
-counter_name 1
-counter_name{labelA="A"} -1
 ```
 
 ### Histogram

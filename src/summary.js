@@ -97,7 +97,7 @@ class Summary extends Metric {
       for (const [i, quantile] of Object.entries(this._percentiles)) {
         const value = values[i];
         if (value !== undefined) {
-          const label = key ? `{quantile=${quantile},${key}}` : `{quantile=${quantile}}`;
+          const label = key ? `{quantile="${quantile}",${key}}` : `{quantile="${quantile}"}`;
           lines.push(`${this.name}${label} ${value}\n`);
         }
       }

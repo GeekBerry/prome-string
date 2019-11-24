@@ -1,8 +1,8 @@
 const { Counter } = require('../src');
 
 const counter = new Counter({
-  name: 'Counter Name',
-  help: 'Counter Help',
+  name: 'counter_name',
+  help: 'counter help',
   labels: ['labelA', 'labelB'],
 });
 

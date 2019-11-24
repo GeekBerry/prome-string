@@ -29,15 +29,23 @@ class Queue {
 
   percentile(percentiles, timeout = Infinity) {
     const td = new TDigest();
+    let sum = 0;
+    let count = 0;
 
     for (let i = this._head; i > this._tail; i -= 1) {
       const { timestamp, value } = this._array[i % this._array.length];
       if (Date.now() - timestamp < timeout) {
         td.push(value);
+        sum += value;
+        count += 1;
       }
     }
 
-    return td.percentile(percentiles);
+    const object = {};
+    for (const value of percentiles) {
+      object[value] = td.percentile(value);
+    }
+    return { object, sum, count };
   }
 }
 
@@ -51,9 +59,6 @@ class Summary extends Metric {
     ...options
   }) {
     super({ ...options, name, labels, type: 'summary' });
-
-    this.sum = new Counter({ name: `${name}_sum`, labels });
-    this.count = new Counter({ name: `${name}_count`, labels });
 
     this._timeout = timeout;
     this._percentiles = percentiles;
@@ -70,44 +75,33 @@ class Summary extends Metric {
     }
 
     this.table[key].push(value);
-    this.sum.add(value, label);
-    this.count.inc(label);
-  }
-
-  percentile(percentile, label = {}, timeout = this._timeout) {
-    const key = this._labelToKey(label);
-    const queue = this.table[key];
-    if (queue) {
-      return queue.percentile(percentile, timeout);
-    }
-    return undefined;
   }
 
   clear() {
     this.table = {};
-    this.sum.clear();
-    this.count.clear();
   }
 
   toString({ head = true } = {}) {
     const lines = [];
-    for (const [key, queue] of Object.entries(this.table)) {
-      const values = queue.percentile(this._percentiles, this._timeout);
 
-      for (const [i, quantile] of Object.entries(this._percentiles)) {
-        const value = values[i];
-        if (value !== undefined) {
-          const label = key ? `{quantile="${quantile}",${key}}` : `{quantile="${quantile}"}`;
-          lines.push(`${this.name}${label} ${value}\n`);
+    for (const [key, queue] of Object.entries(this.table)) {
+      if (queue.length) {
+        const { object, sum, count } = queue.percentile(this._percentiles, this._timeout);
+
+        for (const [quantile, percentile] of Object.entries(object)) {
+          const _label = key ? `{quantile="${quantile}",${key}}` : `{quantile="${quantile}"}`;
+          lines.push(`${this.name}${_label} ${percentile}\n`);
         }
+
+        const label = key ? `{${key}}` : '';
+        lines.push(`${this.name}_sum${label} ${sum}\n`);
+        lines.push(`${this.name}_count${label} ${count}\n`);
       }
     }
 
     return [
       super.toString({ head }),
       ...lines,
-      this.sum.toString({ head: false }),
-      this.count.toString({ head: false }),
     ].join('');
   }
 }

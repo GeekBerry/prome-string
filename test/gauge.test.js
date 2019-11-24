@@ -1,8 +1,8 @@
 const { Gauge } = require('../src');
 
 const gauge = new Gauge({
-  name: 'Gauge Name',
-  help: 'Gauge Help',
+  name: 'gauge_name',
+  help: 'gauge help',
   labels: ['labelA', 'labelB'],
 });
 

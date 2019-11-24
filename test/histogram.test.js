@@ -1,8 +1,8 @@
 const { Histogram } = require('../src');
 
 const histogram = new Histogram({
-  name: 'Histogram Name',
-  help: 'Histogram Help',
+  name: 'histogram_name',
+  help: 'histogram help',
   labels: ['labelA', 'labelB'],
   buckets: [1, 10, 100, 1000],
 });

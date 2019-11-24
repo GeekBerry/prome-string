@@ -85,18 +85,18 @@ class Summary extends Metric {
     const lines = [];
 
     for (const [key, queue] of Object.entries(this.table)) {
-      if (queue.length) {
-        const { object, sum, count } = queue.percentile(this._percentiles, this._timeout);
+      const { object, sum, count } = queue.percentile(this._percentiles, this._timeout);
 
+      if (count) {
         for (const [quantile, percentile] of Object.entries(object)) {
           const _label = key ? `{quantile="${quantile}",${key}}` : `{quantile="${quantile}"}`;
           lines.push(`${this.name}${_label} ${percentile}\n`);
         }
-
-        const label = key ? `{${key}}` : '';
-        lines.push(`${this.name}_sum${label} ${sum}\n`);
-        lines.push(`${this.name}_count${label} ${count}\n`);
       }
+
+      const label = key ? `{${key}}` : '';
+      lines.push(`${this.name}_sum${label} ${sum}\n`);
+      lines.push(`${this.name}_count${label} ${count}\n`);
     }
 
     return [
